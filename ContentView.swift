@@ -25,10 +25,15 @@ struct ContentView: View {
     }
     
     var body: some View {
+        // Change background color based on required exam grade
+        let backgroundColor: Color = requiredExamGrade != nil && requiredExamGrade! > 100 ? .red : .green
+        
         VStack {
             // Title
             Text("Grade Calculator")
                 .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
                 .padding()
             
             // Form for user inputs
@@ -37,22 +42,32 @@ struct ContentView: View {
                     .keyboardType(.decimalPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .foregroundColor(.black)
                 
                 TextField("Enter desired final grade", text: $desiredGrade)
                     .keyboardType(.decimalPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .foregroundColor(.black)
                 
-                TextField("Enter exam weight (e.g., 0.4 for 40%)", text: $examWeight)
+                TextField("Enter exam weight (ex., 0.4 for 40%)", text: $examWeight)
                     .keyboardType(.decimalPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .foregroundColor(.black)
             }
             
             // Calculate Button
             Button(action: calculateRequiredGrade) {
                 Text("Calculate Required Exam Grade")
                     .font(.headline)
+                    .fontWeight(.bold)
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -64,14 +79,18 @@ struct ContentView: View {
             if let requiredExamGrade = requiredExamGrade {
                 Text("You need to score: \(requiredExamGrade, specifier: "%.2f") on your exam")
                     .font(.title2)
-                    .foregroundColor(requiredExamGrade > 100 ? .red : .green)
+                    .fontWeight(.semibold)
+                    .foregroundColor(requiredExamGrade > 100 ? .white : .black)
                     .padding()
+                    .background(requiredExamGrade > 100 ? Color.red : Color.green)
+                    .cornerRadius(8)
             }
             
             Spacer()
         }
+        .background(backgroundColor)
+        .ignoresSafeArea()
         .padding()
     }
 }
-
 
