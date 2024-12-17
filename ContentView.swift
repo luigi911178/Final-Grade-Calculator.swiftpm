@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var rotation: Double = 0
+    @State private var rotationAxis: (x: CGFloat, y: CGFloat, z: CGFloat) = (1, 1, 0)  // Random rotation axis
+    @State private var rotationDuration: Double = 3  // Random duration for the spin
+    
     // State properties for user input
     @State private var currentGrade = ""
     @State private var desiredGrade = "A" // Default to "A"
@@ -36,64 +40,62 @@ struct ContentView: View {
     }
     
     var body: some View {
-        // Change background color based on required exam grade
-        let backgroundColor: Color = requiredExamGrade != nil && requiredExamGrade! > 100 ? .red : .green
-        
-        VStack {
-            // Title
-            Text("Grade Calculator")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.top, 20)
-                .padding(.bottom, 10)
-            
-            // Form for user inputs
-            VStack(spacing: 20) {
-                TextField("Enter current grade", text: $currentGrade)
-                    .keyboardType(.decimalPad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
-                    .foregroundColor(.black)
-                    .onTapGesture {
-                        dismissKeyboard() // Dismiss keyboard when tapped
-                    }
-                
-                // Picker for desired final grade
-                Picker("Select desired final grade", selection: $desiredGrade) {
-                    Text("A").tag("A")
-                    Text("B").tag("B")
-                    Text("C").tag("C")
-                    Text("D").tag("D")
-                }
-                .pickerStyle(WheelPickerStyle()) // Wheel style for better visibility
-                .padding()
-                
-                TextField("Enter exam weight (ex., 0.4 for 40%)", text: $examWeight)
-                    .keyboardType(.decimalPad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
-                    .foregroundColor(.black)
-                    .onTapGesture {
-                        dismissKeyboard() // Dismiss keyboard when tapped
-                    }
-            }
-            
-            // Calculate Button
-            Button(action: calculateRequiredGrade) {
-                Text("Calculate Required Exam Grade")
-                    .font(.headline)
+        VStack(spacing: 10) {
+            // Title and form inputs at the top
+            VStack(spacing: 10) { // Reduce spacing here as well
+                Text("Grade Calculator")
+                    .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding()
-                    .background(Color.blue)
                     .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .padding(.top, 10)
+                
+                // Form for user inputs
+                VStack(spacing: 10) { // Reduced spacing for form inputs
+                    TextField("Enter current grade", text: $currentGrade)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal, 10)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .foregroundColor(.black)
+                        .onTapGesture {
+                            dismissKeyboard() // Dismiss keyboard when tapped
+                        }
+                    
+                    // Picker for desired final grade
+                    Picker("Select desired final grade", selection: $desiredGrade) {
+                        Text("A").tag("A")
+                        Text("B").tag("B")
+                        Text("C").tag("C")
+                        Text("D").tag("D")
+                    }
+                    .pickerStyle(WheelPickerStyle()) // Wheel style for better visibility
+                    .padding(.horizontal, 10)
+                    
+                    TextField("Enter exam weight (ex., 0.4 for 40%)", text: $examWeight)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal, 10)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .foregroundColor(.black)
+                        .onTapGesture {
+                            dismissKeyboard() // Dismiss keyboard when tapped
+                        }
+                }
+                
+                // Calculate Button
+                Button(action: calculateRequiredGrade) {
+                    Text("Calculate Required Exam Grade")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 10) // Reduced padding for the button
             }
-            .padding(.top, 20)
             
             // Display result
             if let requiredExamGrade = requiredExamGrade {
@@ -104,7 +106,7 @@ struct ContentView: View {
                     .padding()
                     .background(requiredExamGrade > 100 ? Color.red : Color.green)
                     .cornerRadius(8)
-                    .padding(.top, 20)
+                    .padding(.top, 10)
                 
                 // Display extra credit suggestion if grade is above 100%
                 if requiredExamGrade > 100 {
@@ -119,11 +121,32 @@ struct ContentView: View {
                 }
             }
             
-            Spacer()
+            // 3D Ball with random rotation (placed at the bottom)
+            Circle()
+                .fill(LinearGradient(gradient: Gradient(colors: [.blue, .white]), startPoint: .top, endPoint: .bottom))
+                .frame(width: 120, height: 120) // Larger ball to make it more prominent
+                .shadow(radius: 15)
+                .rotation3DEffect(
+                    .degrees(rotation),
+                    axis: rotationAxis, // Use the random axis for rotation
+                    perspective: 0.5
+                )
+                .animation(
+                    Animation.linear(duration: rotationDuration).repeatForever(autoreverses: false),
+                    value: rotation
+                )
+                .padding(.bottom, 20) // Increased bottom padding to give more space for the ball
         }
-        .background(backgroundColor)
-        .ignoresSafeArea()
-        .padding()
+        .background(requiredExamGrade != nil && requiredExamGrade! > 100 ? Color.red : Color.green)
+        .ignoresSafeArea() // Ensures the background covers the entire screen, including the safe area
+        .padding(.horizontal, 30) // Increased horizontal padding to give more room to the content
+        .onAppear {
+            // Randomize rotation values when the view appears
+            rotation = 360
+            // Ball rotation
+            rotationAxis = (CGFloat.random(in: 0...50), CGFloat.random(in: 0...50), CGFloat.random(in: 0...5))
+            rotationDuration = Double.random(in: 2...6) // Speed of rotation
+        }
         .onTapGesture {
             dismissKeyboard() // Dismiss keyboard when tapping outside
         }
